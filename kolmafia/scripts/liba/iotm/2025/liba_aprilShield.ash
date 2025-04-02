@@ -22,13 +22,12 @@ boolean liba_aprilShield(int duration,effect eff);
 boolean liba_aprilShield(skill ski);
 boolean liba_aprilShield(int casts,skill ski);
 
-
 //buy items from april shield coinmaster with glob of wet paper
 //returns result of buy() from coinmaster for the item(s)
 boolean liba_aprilShield(item ite);
 boolean liba_aprilShield(int num,item ite);
 
-
+/* implementaitons */
 
 boolean liba_haveAprilShield() {
 	return available_amount($item[april shower thoughts shield]) > 0;
@@ -44,6 +43,7 @@ boolean liba_aprilShield(int duration,effect eff) {
 	item aprilShield = $item[april shower thoughts shield];
 	skill[effect] legend = {
 		$effect[disco over matter]:$skill[disco aerobics],
+		$effect[leash of linguini]:$skill[leash of linguini],
 		$effect[lubricating sauce]:$skill[sauce contemplation],
 		$effect[mariachi moisture]:$skill[moxie of the mariachi],
 		$effect[simmering]:$skill[simmer],
