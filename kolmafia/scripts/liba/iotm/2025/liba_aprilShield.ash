@@ -56,7 +56,7 @@ boolean liba_aprilShield(int duration,effect eff) {
 	skill ski = legend[eff];
 	if (ski == $skill[none])
 		return false;
-	int turnsPerCast = ski.turns_per_cast();
+	int turnsPerCast = ski == $skill[leash of linguini] ? 15 : ski.turns_per_cast();
 	int casts = duration / turnsPerCast + (duration % turnsPerCast == 0 ? 0 : 1);
 
 	//need to not have april shield equipped to get empathy
