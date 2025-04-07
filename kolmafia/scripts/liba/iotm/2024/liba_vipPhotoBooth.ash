@@ -27,7 +27,7 @@ boolean liba_vipPhotoBooth(int times,effect eff) {
 	int advEffect = 1534;
 	int start = have_effect(eff);
 	int limit = 3 - get_property("_photoBoothEffects").to_int();
-	int num = times > limit ? limit : times < 1 ? 1 : times;
+	int num = times >= limit ? limit : times < 1 ? 1 : times;
 
 	if (limit <= 0)
 		return false;
