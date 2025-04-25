@@ -2,10 +2,10 @@
 
 //functions to handle leprecondo
 
-import <c2t_lib.ash>
+import <liba_inChoice.ash>
 
 //returns true of have leprecondo
-boolean liba_haveLeprecondo();
+boolean liba_leprecondo_have();
 
 //all of the following arrange leprecondo pieces with different inputs
 //returns true if pieces already or in order or if successfully changed
@@ -14,36 +14,44 @@ boolean liba_leprecondo(string[int] map); //e.g. {"d","a","c","b"}
 boolean liba_leprecondo(int part1,int part2,int part3,int part4);
 boolean liba_leprecondo(string name1,string name2,string name3,string name4);
 
+/* helper functions */
+
+boolean liba_leprecondo_visit() {
+	if (!liba_inChoice(1556))
+		use($item[leprecondo]);
+	return liba_inChoice(1556);
+}
+
 //returns number of piece given by name
-int liba_leprecondoNameToInt(string name);
+int liba_leprecondo_nameToInt(string name);
 
 //returns name of piece given by number
-string liba_leprecondoIntToName(int number);
+string liba_leprecondo_intToName(int number);
 
 //returns a map keyed to pieces discovered (available to use)
-boolean[int] liba_leprecondoDiscovered();
+boolean[int] liba_leprecondo_discovered();
 
 //for standardizing error messages
 //always returns false
-boolean liba_leprecondoError(string s);
+boolean liba_leprecondo_error(string s);
 
 //for standarizing success messages
 //always returns true
-boolean liba_leprecondoSuccess(string s);
+boolean liba_leprecondo_success(string s);
 
 
 /* implementations */
 
-boolean liba_haveLeprecondo() {
+boolean liba_leprecondo_have() {
 	return available_amount($item[leprecondo]) > 0;
 }
 boolean liba_leprecondo(int[int] map) {
-	if (!liba_haveLeprecondo())
-		return liba_leprecondoError("Leprecondo not available");
+	if (!liba_leprecondo_have())
+		return liba_leprecondo_error("Leprecondo not available");
 	if (map.count() > 4)
-		return liba_leprecondoError("cannot arrange more than 4 pieces");
+		return liba_leprecondo_error("cannot arrange more than 4 pieces");
 
-	boolean[int] discovered = liba_leprecondoDiscovered();
+	boolean[int] discovered = liba_leprecondo_discovered();
 	string currentConfig = get_property("leprecondoInstalled");
 	string newConfig,names,sendit;
 	int num = -1;
@@ -52,42 +60,40 @@ boolean liba_leprecondo(int[int] map) {
 	foreach i,x in map {
 		//need to be in range
 		if (x > 27 || x < 1)
-			return liba_leprecondoError(`input of {x} is out of range`);
+			return liba_leprecondo_error(`input of {x} is out of range`);
 		//needs to be available
 		if (!(discovered contains x))
-			return liba_leprecondoError(`do not have piece {x} ({x.liba_leprecondoIntToName()})`);
+			return liba_leprecondo_error(`do not have piece {x} ({x.liba_leprecondo_intToName()})`);
 		//cannot repeat
 		foreach j,y in map if (i != j && x == y)
-			return liba_leprecondoError(`inputs {i} and {j} have same value of {x} ({x.liba_leprecondoIntToName()})`);
+			return liba_leprecondo_error(`inputs {i} and {j} have same value of {x} ({x.liba_leprecondo_intToName()})`);
 		//assemble strings used later
 		newConfig += (newConfig == "" ? "" : ",") + x;
-		names += (names == "" ? "" : ",") + x.liba_leprecondoIntToName();
+		names += (names == "" ? "" : ",") + x.liba_leprecondo_intToName();
 		sendit += (++num == 0 ? "" : "&") + `r{num}={x}`;
 	}
 	//don't bother if configs already match
 	if (newConfig == currentConfig)
-		return liba_leprecondoSuccess(`config already set to {newConfig} ({names})`);
+		return liba_leprecondo_success(`config already set to {newConfig} ({names})`);
 	//don't want to check this until config matching is checked
 	if (get_property("_leprecondoRearrangements") >= 3)
-		return liba_leprecondoError("already reached max rearrangements");
+		return liba_leprecondo_error("already reached max rearrangements");
 
 	//get to the leprecondo
-	if (!c2t_inChoice(1556))
-		c2t_pageUse($item[leprecondo]);
-	if (!c2t_inChoice(1556))
-		liba_leprecondoError("using the Leprecondo failed");
+	if (!liba_leprecondo_visit())
+		liba_leprecondo_error("using the Leprecondo failed");
 
 	run_choice(1,sendit);
 
 	if (newConfig == get_property("leprecondoInstalled"))
-		return liba_leprecondoSuccess(`config changed to {newConfig} ({names})`);
+		return liba_leprecondo_success(`config changed to {newConfig} ({names})`);
 
-	return liba_leprecondoError("failed to arrange Leprecondo");
+	return liba_leprecondo_error("failed to arrange Leprecondo");
 }
 boolean liba_leprecondo(string[int] map) {
 	int[int] out;
 	foreach i,x in map
-		out[i] = x.liba_leprecondoNameToInt();
+		out[i] = x.liba_leprecondo_nameToInt();
 	return liba_leprecondo(out);
 }
 boolean liba_leprecondo(int part1,int part2,int part3,int part4) {
@@ -96,14 +102,14 @@ boolean liba_leprecondo(int part1,int part2,int part3,int part4) {
 }
 boolean liba_leprecondo(string name1,string name2,string name3,string name4) {
 	int[int] out = {
-		name1.liba_leprecondoNameToInt(),
-		name2.liba_leprecondoNameToInt(),
-		name3.liba_leprecondoNameToInt(),
-		name4.liba_leprecondoNameToInt(),
+		name1.liba_leprecondo_nameToInt(),
+		name2.liba_leprecondo_nameToInt(),
+		name3.liba_leprecondo_nameToInt(),
+		name4.liba_leprecondo_nameToInt(),
 	};
 	return liba_leprecondo(out);
 }
-int liba_leprecondoNameToInt(string name) {
+int liba_leprecondo_nameToInt(string name) {
 	int[string] legend = {
 		"buckets of concrete":1,
 		"thrift store oil painting":2,
@@ -138,7 +144,7 @@ int liba_leprecondoNameToInt(string name) {
 	};
 	return legend[name.to_lower_case()];
 }
-string liba_leprecondoIntToName(int number) {
+string liba_leprecondo_intToName(int number) {
 	string[int] legend = {
 		1:"buckets of concrete",
 		2:"thrift store oil painting",
@@ -170,17 +176,17 @@ string liba_leprecondoIntToName(int number) {
 	};
 	return legend[number];
 }
-boolean[int] liba_leprecondoDiscovered() {
+boolean[int] liba_leprecondo_discovered() {
 	boolean[int] out;
 	foreach i,x in get_property("leprecondoDiscovered").split_string(",")
 		out[x.to_int()] = true;
 	return out;
 }
-boolean liba_leprecondoError(string s) {
+boolean liba_leprecondo_error(string s) {
 	print(`liba_leprecondo error: {s}`,"red");
 	return false;
 }
-boolean liba_leprecondoSuccess(string s) {
+boolean liba_leprecondo_success(string s) {
 	print(`liba_leprecondo: {s}`);
 	return true;
 }

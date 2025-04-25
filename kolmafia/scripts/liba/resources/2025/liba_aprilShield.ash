@@ -4,10 +4,10 @@
 //will automatically equip and unequip april shield as appropriate, restoring state of equipment before use before returning
 //will return false for everything if player does not have april shield
 
-import <c2t_lib.ash>
+import <liba_equipCast.ash>
 
 //returns true if have the april shield item
-boolean liba_haveAprilShield();
+boolean liba_aprilShield_have();
 
 //get an effect with (or without in the case of empathy) april shield
 //duration is how many turns of the effect you want to get with its use
@@ -29,14 +29,14 @@ boolean liba_aprilShield(int num,item ite);
 
 /* implementaitons */
 
-boolean liba_haveAprilShield() {
+boolean liba_aprilShield_have() {
 	return available_amount($item[april shower thoughts shield]) > 0;
 }
 boolean liba_aprilShield(effect eff) {
 	return liba_aprilShield(1,eff);
 }
 boolean liba_aprilShield(int duration,effect eff) {
-	if (!liba_haveAprilShield())
+	if (!liba_aprilShield_have())
 		return false;
 
 	boolean out;
@@ -71,15 +71,15 @@ boolean liba_aprilShield(int duration,effect eff) {
 			equip($slot[off-hand],aprilShield);
 		return out;
 	}
-	return c2t_equipCast(casts,$item[april shower thoughts shield],ski);
+	return liba_equipCast(casts,$item[april shower thoughts shield],ski);
 }
 boolean liba_aprilShield(skill ski) {
 	return liba_aprilShield(1,ski);
 }
 boolean liba_aprilShield(int casts,skill ski) {
-	if (!liba_haveAprilShield())
+	if (!liba_aprilShield_have())
 		return false;
-	return c2t_equipCast(casts,$item[april shower thoughts shield],ski);
+	return liba_equipCast(casts,$item[april shower thoughts shield],ski);
 }
 boolean liba_aprilShield(item ite) {
 	return liba_aprilShield(1,ite);

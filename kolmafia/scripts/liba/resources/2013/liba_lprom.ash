@@ -3,10 +3,10 @@
 //handle things with the wearbear lp-rom burner
 //will use mafia settings to restore MP if the player runs out prematurely
 
-import <c2t_lib.ash>
+import <liba_inChoice.ash>
 
 //returns true if have lprom and it is installed in the workshed
-boolean liba_haveLprom();
+boolean liba_lprom_have();
 
 //commits a song to the record item of the corresponding skill
 //returns true if gotten at least one item from the lprom
@@ -22,20 +22,20 @@ boolean liba_lprom(int qty,item ite);
 boolean liba_lprom(item ite,int qty);
 
 //helper functions
-item liba_lpromSkillToItem(skill ski);
-skill liba_lpromItemToSkill(item ite);
-boolean liba_lpromError(string s);
-buffer liba_lpromEnter();
+item liba_lprom_skillToItem(skill ski);
+skill liba_lprom_itemToSkill(item ite);
+boolean liba_lprom_error(string s);
+boolean liba_lprom_enter();
 
 
 /* implementations */
 
-boolean liba_haveLprom() {
+boolean liba_lprom_have() {
 	return get_workshed() == $item[warbear lp-rom burner];
 }
 boolean liba_lprom(int qty,skill ski) {
 	item lprom = $item[warbear lp-rom burner];
-	item disc = ski.liba_lpromSkillToItem();
+	item disc = ski.liba_lprom_skillToItem();
 	int option = ski.to_effect().id;
 	int start = item_amount(disc);
 	int cost = mp_cost(ski);
@@ -43,16 +43,16 @@ boolean liba_lprom(int qty,skill ski) {
 	int max = qty == -1 ? ski.dailylimit : qty < 1 ? 1 : qty;
 
 	//errors
-	if (!liba_haveLprom())
-		return liba_lpromError(`do not have the {lprom} installed`);
+	if (!liba_lprom_have())
+		return liba_lprom_error(`do not have the {lprom} installed`);
 	if (!have_skill(ski))
-		return liba_lpromError(`do not have the {ski} skill`);
+		return liba_lprom_error(`do not have the {ski} skill`);
 	if (disc == $item[none])
-		return liba_lpromError(`{ski} is not a valid skill for your class`);
+		return liba_lprom_error(`{ski} is not a valid skill for your class`);
 	if (ski.dailylimit == 0)
-		return liba_lpromError(`out of uses of the {ski} skill`);
+		return liba_lprom_error(`out of uses of the {ski} skill`);
 	if (mp_cost(ski) > my_maxmp())
-		return liba_lpromError(`not enough MP to cast the {ski} skill`);
+		return liba_lprom_error(`not enough MP to cast the {ski} skill`);
 
 	//do the thing
 	repeat {
@@ -63,14 +63,12 @@ boolean liba_lprom(int qty,skill ski) {
 		casts = left > ski.dailylimit ? ski.dailylimit : left;
 		restore_mp(cost * casts);
 		casts = my_mp()/cost > casts ? casts : my_mp()/cost;
-		if (casts == 0)
+		if (casts <= 0)
 			break;
 
 		//get there
-		if (!c2t_inChoice(821))
-			liba_lpromEnter();
-		if (!c2t_inChoice(821))
-			return liba_lpromError(`could not visit the {lprom} in the workshed`);
+		if (!liba_lprom_enter())
+			return liba_lprom_error(`could not visit the {lprom} in the workshed`);
 
 		run_choice(1,`whicheffect={option}&times={casts}`);
 
@@ -82,9 +80,9 @@ boolean liba_lprom(int qty,skill ski) {
 	//failed-to-create errors
 	if (start == item_amount(disc)) {
 		if (my_mp() < cost)
-			return liba_lpromError("did not have enough MP to create anything");
+			return liba_lprom_error("did not have enough MP to create anything");
 		else
-			return liba_lpromError("failed to create anything");
+			return liba_lprom_error("failed to create anything");
 	}
 
 	return true;
@@ -102,12 +100,12 @@ boolean liba_lprom(item ite,int qty) {
 	return liba_lprom(qty,ite);
 }
 boolean liba_lprom(int qty,item ite) {
-	skill ski = ite.liba_lpromItemToSkill();
+	skill ski = ite.liba_lprom_itemToSkill();
 	if (ski == $skill[none])
-		return liba_lpromError(`cannot make "{ite}" as {my_class()}`);
+		return liba_lprom_error(`cannot make "{ite}" as {my_class()}`);
 	return liba_lprom(qty,ski);
 }
-item liba_lpromSkillToItem(skill ski) {
+item liba_lprom_skillToItem(skill ski) {
 	item[skill] legend;
 	if (my_class() == $class[accordion thief]) {
 		legend = {
@@ -128,7 +126,7 @@ item liba_lpromSkillToItem(skill ski) {
 	}
 	return legend[ski];
 }
-skill liba_lpromItemToSkill(item ite) {
+skill liba_lprom_itemToSkill(item ite) {
 	skill[item] legend;
 	if (my_class() == $class[accordion thief]) {
 		legend = {
@@ -149,8 +147,13 @@ skill liba_lpromItemToSkill(item ite) {
 	}
 	return legend[ite];
 }
-boolean liba_lpromError(string s) {
+boolean liba_lprom_error(string s) {
 	print(`liba_lprom error: {s}`,"red");
 	return false;
+}
+boolean liba_lprom_enter() {
+	if (!liba_inChoice(821))
+		visit_url('campground.php?action=lprom',true,true);
+	return liba_inChoice(821);
 }
 
