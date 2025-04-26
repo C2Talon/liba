@@ -33,8 +33,7 @@ boolean liba_equipCast(int times,item equipment,skill skil) {
 	//swap in item
 	if (!have_equipped(equipment)) {
 		//edge cases with hands
-		if ($slots[weapon,off-hand] contains slo)
-		{
+		if ($slots[weapon,off-hand] contains slo) {
 			main = equipped_item($slot[weapon]);
 			last = equipped_item($slot[off-hand]);
 			//unequip mainhand weapon if it blocks equipping offhand

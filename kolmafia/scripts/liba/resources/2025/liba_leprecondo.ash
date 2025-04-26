@@ -3,6 +3,7 @@
 //functions to handle leprecondo
 
 import <liba_inChoice.ash>
+import <liba_rawUse.ash>
 
 //returns true of have leprecondo
 boolean liba_leprecondo_have();
@@ -15,12 +16,6 @@ boolean liba_leprecondo(int part1,int part2,int part3,int part4);
 boolean liba_leprecondo(string name1,string name2,string name3,string name4);
 
 /* helper functions */
-
-boolean liba_leprecondo_visit() {
-	if (!liba_inChoice(1556))
-		use($item[leprecondo]);
-	return liba_inChoice(1556);
-}
 
 //returns number of piece given by name
 int liba_leprecondo_nameToInt(string name);
@@ -38,6 +33,10 @@ boolean liba_leprecondo_error(string s);
 //for standarizing success messages
 //always returns true
 boolean liba_leprecondo_success(string s);
+
+//goes to leprecondo choice adventure if not already there
+//returns true if in the choice adventure
+boolean liba_leprecondo_visit();
 
 
 /* implementations */
@@ -189,5 +188,10 @@ boolean liba_leprecondo_error(string s) {
 boolean liba_leprecondo_success(string s) {
 	print(`liba_leprecondo: {s}`);
 	return true;
+}
+boolean liba_leprecondo_visit() {
+	if (!liba_inChoice(1556))
+		liba_rawUse($item[leprecondo]);
+	return liba_inChoice(1556);
 }
 
