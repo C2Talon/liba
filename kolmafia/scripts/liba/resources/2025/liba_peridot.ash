@@ -11,7 +11,9 @@ import <liba_inCombat.ash>
 //returns true if have the peridot item
 boolean liba_peridot_have();
 
-//uses the peridot to fight a monster at a location
+//tries to fight a monster at a location with the peridot of peril choice adventure
+//make sure to have the peridot of peril equipped first, as well as do any other pre-adventure preparation since mafia's automated ones will not trigger with this
+//this will also work if you happen to already be in the choice adventure to choose a monster
 //returns true if monster is fought
 //returns false on any error with a message
 boolean liba_peridot(monster mon,location loc);
@@ -19,7 +21,7 @@ boolean liba_peridot(monster mon,location loc,string macro);
 boolean liba_peridot(location loc,monster mon);
 boolean liba_peridot(location loc,monster mon,string macro);
 
-//send fruit, in part, to another player
+//send fruit, in part, to another player with foresee peril
 //returns true if sent or false if not
 boolean liba_peridot(string player_name_or_id);
 boolean liba_peridot(int player_id);
@@ -49,14 +51,18 @@ boolean liba_peridot(monster mon,location loc,string macro) {
 	int tries = 0,max = 5;
 
 	//pre-flight checks
-	if (!liba_peridot_have())
-		return liba_peridot_error(`no {peridot} detected`);
-	if (equipped_amount(peridot) == 0)
-		return liba_peridot_error(`{peridot} not equipped`);
-	if (!loc.to_url().starts_with("adventure.php"))
-		return liba_peridot_error(`{loc} is not a valid location`);
-	if (liba_peridot_used(loc) && !liba_inChoice(1557))
-		return liba_peridot_error(`already used at {loc}`);
+	if (!liba_inChoice(1557)) {//if already in the choice, don't really need to check that we can get to the choice
+		if (!liba_peridot_have())
+			return liba_peridot_error(`no {peridot} detected`);
+		if (equipped_amount(peridot) == 0)
+			return liba_peridot_error(`{peridot} not equipped`);
+		if (!loc.to_url().starts_with("adventure.php"))
+			return liba_peridot_error(`{loc} is not a valid location`);
+		if (!(appearance_rates(loc) contains mon))
+			return liba_peridot_error(`{mon} is not found at {loc} according to mafia`);
+		if (liba_peridot_used(loc))
+			return liba_peridot_error(`already used at {loc}`);
+	}
 
 	repeat {
 		page = loc.to_url().visit_url(false,true);
@@ -66,9 +72,11 @@ boolean liba_peridot(monster mon,location loc,string macro) {
 			run_turn();
 			continue;
 		}
-		//the choice adventure
+		//the choice
 		if (liba_inChoice(1557)) {
 			if (!page.liba_peridot_checkChoice(mon)) {
+				//choosing a monster that isn't on the list goes to a bugged adventure that costs a turn to get out of, so this is the safer and more streamlined alternative
+				//i.e. would rather lose a charge and keep going than lose a turn for nothing or abort on this
 				run_choice(2);
 				return liba_peridot_error(`{mon} not found at {loc}; choice adventure was exited and the {peridot} charge has been used`);
 			}
