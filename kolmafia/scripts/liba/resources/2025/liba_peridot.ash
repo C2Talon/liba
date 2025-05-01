@@ -121,8 +121,7 @@ boolean liba_peridot(int player_id) {
 	return liba_peridot(player_id.to_string());
 }
 boolean liba_peridot_used(location loc) {
-	matcher mat = create_matcher(`(?<=(^|,)){loc.id}(?=($|,))`,get_property("_perilLocations"));
-	return mat.find();
+	return create_matcher(`(?<=(^|,)){loc.id}(?=($|,))`,get_property("_perilLocations")).find();
 }
 boolean liba_peridot_checkChoice(buffer page,monster mon) {
 	return page.contains_text(`name="bandersnatch" value="{mon.id}"`);

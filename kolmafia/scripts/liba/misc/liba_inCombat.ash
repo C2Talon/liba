@@ -16,15 +16,13 @@ boolean liba_inCombat(monster mon,string page);
 /* implementations */
 
 boolean liba_inCombat(buffer page) {
-	matcher mat = create_matcher("<!-*\\s*MONSTERID:\\s+\\d+\\s*-*>",page);
-	return mat.find();
+	return create_matcher("<!-*\\s*MONSTERID:\\s+\\d+\\s*-*>",page).find();
 }
 boolean liba_inCombat(string page) {
 	return liba_inCombat(page.to_buffer());
 }
 boolean liba_inCombat(buffer page,monster mon) {
-	matcher mat = create_matcher(`<!-*\\s*MONSTERID:\\s+{mon.id}\\s*-*>`,page);
-	return mat.find();
+	return create_matcher(`<!-*\\s*MONSTERID:\\s+{mon.id}\\s*-*>`,page).find();
 }
 boolean liba_inCombat(string page,monster mon) {
 	return liba_inCombat(page.to_buffer(),mon);
