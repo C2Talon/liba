@@ -11,7 +11,7 @@ import <liba_inCombat.ash>
 //returns true if have the peridot item
 boolean liba_peridot_have();
 
-//tries to fight a monster at a location with the peridot of peril choice adventure
+//tries to fight a monster at a location with optional combat macro with the peridot of peril choice adventure
 //make sure to have the peridot of peril equipped first, as well as do any other pre-adventure preparation since mafia's automated ones will not trigger with this
 //this will also work if you happen to already be in the choice adventure to choose a monster
 //returns true if monster is fought
@@ -58,6 +58,8 @@ boolean liba_peridot(monster mon,location loc,string macro) {
 			return liba_peridot_error(`{peridot} not equipped`);
 		if (!loc.to_url().starts_with("adventure.php"))
 			return liba_peridot_error(`{loc} is not a valid location`);
+		if (!can_adventure(loc))
+			return liba_peridot_error(`{loc} not available for adventure`);
 		if (!(appearance_rates(loc) contains mon))
 			return liba_peridot_error(`{mon} is not found at {loc} according to mafia`);
 		if (liba_peridot_used(loc))
@@ -68,7 +70,7 @@ boolean liba_peridot(monster mon,location loc,string macro) {
 		page = loc.to_url().visit_url(false,true);
 		//encountered something unexpected
 		if (!liba_inChoice(1557) && !page.liba_inCombat(mon)) {
-			liba_peridot_print("encountered something unexpected, trying to gracefully handle it");
+			liba_peridot_print("encountered something unexpected; trying to gracefully handle it");
 			run_turn();
 			continue;
 		}
