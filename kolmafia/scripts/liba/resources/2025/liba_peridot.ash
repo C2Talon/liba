@@ -1,22 +1,19 @@
 //liba peridot
 
-//used to fight and keep track of monsters fought with this in each zone
+//used to fight monsters in their respective locations with the peridot of peril
+//will try to gracefully handle unexpected things it encounters and then try again after, but will quit trying to get a peridot encounter if it ends up using a turn with the unexpected things
+//warning: if you try to use this with a monster and location combination that isn't valid, bad things(TM) may happen
 //note: with the way this is implemented, pre-adventure scripts will not automatically run before adventures with this
-//current a few aborts in the script, simply because I think it might be a bad idea to let the calling script continue in a state that it probably would not expect
 
 import <liba_inChoice.ash>
+import <liba_inCombat.ash>
 
 //returns true if have the peridot item
 boolean liba_peridot_have();
 
-/*
-uses the peridot to fight a monster at a location
-returns true if monster is fought with the peridot
-returns false if:
-- the peridot is not equipped
-- the monster is not in the zone
-- the choice adventure was not encountered
-*/
+//uses the peridot to fight a monster at a location
+//returns true if monster is fought
+//returns false on any error with a message
 boolean liba_peridot(monster mon,location loc);
 boolean liba_peridot(monster mon,location loc,string macro);
 boolean liba_peridot(location loc,monster mon);
@@ -28,9 +25,7 @@ boolean liba_peridot_used(location loc);
 
 /* helper functions */
 
-//check if monster is in the choice or combat
-boolean liba_peridot_checkCombat(buffer page);
-boolean liba_peridot_checkCombat(buffer page,monster mon);
+//check if monster is in the choice
 boolean liba_peridot_checkChoice(buffer page,monster mon);
 
 //standardize messages
@@ -44,54 +39,50 @@ boolean liba_peridot_have() {
 }
 boolean liba_peridot(monster mon,location loc,string macro) {
 	buffer page;
-	item thing = $item[peridot of peril];
+	item peridot = $item[peridot of peril];
+	int start = turns_played();
+	int tries = 0,max = 5;
 
+	//pre-flight checks
 	if (!liba_peridot_have())
-		return liba_peridot_error(`no {thing} detected`);
-	if (equipped_amount(thing) == 0)
-		return liba_peridot_error(`{thing} not equipped`);
-	if (liba_peridot_used(loc))
+		return liba_peridot_error(`no {peridot} detected`);
+	if (equipped_amount(peridot) == 0)
+		return liba_peridot_error(`{peridot} not equipped`);
+	if (!loc.to_url().starts_with("adventure.php"))
+		return liba_peridot_error(`{loc} is not a valid location`);
+	if (liba_peridot_used(loc) && !liba_inChoice(1557))
 		return liba_peridot_error(`already used at {loc}`);
 
-	//get to choice via location with visit_url() to avoid mafia taking over or aborting
-	if (liba_inChoice(1557))
-		page = visit_url("main.php",false,true);//need page text to check it
-	else
+	repeat {
 		page = loc.to_url().visit_url(false,true);
-	if (!liba_inChoice(1557)) {
-		if (page.liba_peridot_checkCombat(mon)) {
-			liba_peridot_print(`already in combat with {mon} without going to the choice adventure, so running the combat`);
+		//encountered something unexpected
+		if (!liba_inChoice(1557) && !page.liba_inCombat(mon)) {
+			liba_peridot_print("encountered something unexpected, trying to gracefully handle it");
+			run_turn();
+			continue;
+		}
+		//the choice adventure
+		if (liba_inChoice(1557)) {
+			if (!page.liba_peridot_checkChoice(mon)) {
+				run_choice(2);
+				return liba_peridot_error(`{mon} not found at {loc}; choice adventure was exited and the {peridot} charge has been used`);
+			}
+			page = visit_url(`choice.php?pwd&option=1&whichchoice=1557&bandersnatch={mon.id}`,true,true);
+		}
+		//the combat
+		if (page.liba_inCombat(mon)) {
 			run_combat(macro);
 			return true;
 		}
-		else if (page.liba_peridot_checkCombat())
-			abort("in a combat not expected");
-		else if (handling_choice())
-			abort("in a choice adventure not expected");
-		else
-			return liba_peridot_error("something broke; couldn't get into the choice");
-	}
-	if (!page.liba_peridot_checkChoice(mon))
-		abort(`could not find {mon} in the list; still in the {thing} choice adventure`);
+	} until (turns_played() > start || ++tries >= max);
 
-	//everything checks out so far; choose the monster
-	page = visit_url(`choice.php?pwd&option=1&whichchoice=1557&bandersnatch={mon.id}`,true,true);
+	//errors
+	if (turns_played() > start)
+		return liba_peridot_error(`a turn was used up before even trying to fight a {mon} at {loc}, so giving up`);
+	if (tries >= max)
+		return liba_peridot_error(`too many attempts were made trying to fight a {mon} at {loc}, so giving up`);
 
-	//success
-	if (page.liba_peridot_checkCombat(mon)) {
-		run_combat(macro);
-		return true;
-	}
-	//error
-	else if (page.liba_peridot_checkCombat())
-		abort("in a combat not expected");
-	else if (liba_inChoice(1557))
-		abort(`still stuck in the {thing} choice adventure`);
-	else if (liba_inChoice(1435))
-		abort("managed to get stuck in a bugged adventure that costs a turn against all attempts to prevent it; please report this, preferrably with logs");
-	else
-		abort("unknown error; genuinely don't know the state of kol or mafia; please report this, preferrably with logs");
-	return false;//no way to get here, but kolmafia complains about missing return value
+	return liba_peridot_error("no idea how this got to the end, but it did");
 }
 boolean liba_peridot(monster mon,location loc) {
 	return liba_peridot(mon,loc,'');
@@ -104,14 +95,6 @@ boolean liba_peridot(location loc,monster mon) {
 }
 boolean liba_peridot_used(location loc) {
 	matcher mat = create_matcher(`(?<=(^|,)){loc.id}(?=($|,))`,get_property("_perilLocations"));
-	return mat.find();
-}
-boolean liba_peridot_checkCombat(buffer page) {
-	matcher mat = create_matcher("<!-*\\s*MONSTERID:\\s+\\d+\\s*-*>",page);
-	return mat.find();
-}
-boolean liba_peridot_checkCombat(buffer page,monster mon) {
-	matcher mat = create_matcher(`<!-*\\s*MONSTERID:\\s+{mon.id}\\s*-*>`,page);
 	return mat.find();
 }
 boolean liba_peridot_checkChoice(buffer page,monster mon) {
