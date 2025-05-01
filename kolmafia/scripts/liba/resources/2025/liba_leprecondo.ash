@@ -80,7 +80,7 @@ boolean liba_leprecondo(int[int] map) {
 
 	//get to the leprecondo
 	if (!liba_leprecondo_visit())
-		liba_leprecondo_error("using the Leprecondo failed");
+		return liba_leprecondo_error("using the Leprecondo failed");
 
 	run_choice(1,sendit);
 
