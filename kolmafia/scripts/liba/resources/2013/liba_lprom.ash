@@ -3,6 +3,7 @@
 //handle things with the wearbear lp-rom burner
 //will use mafia settings to restore MP if the player runs out prematurely
 
+import <liba_clamp.ash>
 import <liba_inChoice.ash>
 
 //returns true if have lprom and it is installed in the workshed
@@ -40,7 +41,7 @@ boolean liba_lprom(int qty,skill ski) {
 	int start = item_amount(disc);
 	int cost = mp_cost(ski);
 	int casts,count,top,left;
-	int max = qty == -1 ? ski.dailylimit : qty < 1 ? 1 : qty;
+	int max = qty == -1 ? ski.dailylimit : liba_clamp(qty,1,ski.dailylimit);
 
 	//errors
 	if (!liba_lprom_have())
@@ -60,9 +61,10 @@ boolean liba_lprom(int qty,skill ski) {
 		left = max - count;
 
 		//casts and mp juggling
-		casts = left > ski.dailylimit ? ski.dailylimit : left;
-		restore_mp(cost * casts);
-		casts = my_mp()/cost > casts ? casts : my_mp()/cost;
+		casts = min(left,ski.dailylimit);
+		if (casts > 0)
+			restore_mp(cost * casts);
+		casts = min(casts,my_mp()/cost);
 		if (casts <= 0)
 			break;
 

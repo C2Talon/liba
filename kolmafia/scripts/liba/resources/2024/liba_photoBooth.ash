@@ -2,6 +2,7 @@
 
 //get things from vip photo booth
 
+import <liba_clamp.ash>
 import <liba_inChoice.ash>
 
 //returns true if current clan has vip photo booth
@@ -27,7 +28,7 @@ boolean liba_photoBooth(int times,effect eff) {
 	int advEffect = 1534;
 	int start = have_effect(eff);
 	int limit = 3 - get_property("_photoBoothEffects").to_int();
-	int num = times >= limit ? limit : times < 1 ? 1 : times;
+	int num = liba_clamp(times,1,limit);
 
 	if (limit <= 0)
 		return false;
