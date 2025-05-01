@@ -19,6 +19,11 @@ boolean liba_peridot(monster mon,location loc,string macro);
 boolean liba_peridot(location loc,monster mon);
 boolean liba_peridot(location loc,monster mon,string macro);
 
+//send fruit, in part, to another player
+//returns true if sent or false if not
+boolean liba_peridot(string player_name_or_id);
+boolean liba_peridot(int player_id);
+
 //reads a mafia preference used to track if the peridot has already been used in a location
 //returns true if the peridot has been used in the location
 boolean liba_peridot_used(location loc);
@@ -92,6 +97,18 @@ boolean liba_peridot(location loc,monster mon,string macro) {
 }
 boolean liba_peridot(location loc,monster mon) {
 	return liba_peridot(mon,loc,'');
+}
+boolean liba_peridot(string player_name_or_id) {
+	if (!liba_peridot_have())
+		return liba_peridot_error(`no peridot detected`);
+	int start = get_property("_perilsForeseen").to_int();
+	if (start >= 3)
+		return liba_peridot_error("foresee peril has been used max times already");
+	cli_execute(`try;throw peridot of peril at {player_name_or_id}`);
+	return start != get_property("_perilsForeseen").to_int();
+}
+boolean liba_peridot(int player_id) {
+	return liba_peridot(player_id.to_string());
 }
 boolean liba_peridot_used(location loc) {
 	matcher mat = create_matcher(`(?<=(^|,)){loc.id}(?=($|,))`,get_property("_perilLocations"));
