@@ -30,10 +30,13 @@ boolean liba_peridot(int player_id);
 //returns true if the peridot has been used in the location
 boolean liba_peridot_used(location loc);
 
-/* helper functions */
+//returns map of all the monsters in the choice adventure from the given page
+boolean[monster] liba_peridot_monstersInChoice(buffer page);
 
-//check if monster is in the choice
+//check if monster is in the choice from the given page
 boolean liba_peridot_checkChoice(buffer page,monster mon);
+
+/* helper functions */
 
 //standardize messages
 boolean liba_peridot_error(string s);
@@ -122,6 +125,13 @@ boolean liba_peridot(int player_id) {
 }
 boolean liba_peridot_used(location loc) {
 	return create_matcher(`(?<=(^|,)){loc.id}(?=($|,))`,get_property("_perilLocations")).find();
+}
+boolean[monster] liba_peridot_monstersInChoice(buffer page) {
+	boolean[monster] out;
+	matcher mat = create_matcher('name="bandersnatch" value="(\\d+)"',page);
+	while (mat.find())
+		out[mat.group(1).to_monster()] = true;
+	return out;
 }
 boolean liba_peridot_checkChoice(buffer page,monster mon) {
 	return page.contains_text(`name="bandersnatch" value="{mon.id}"`);
