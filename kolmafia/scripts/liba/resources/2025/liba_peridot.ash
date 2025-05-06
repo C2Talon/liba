@@ -63,8 +63,9 @@ boolean liba_peridot(monster mon,location loc,string macro) {
 			return liba_peridot_error(`{loc} is not a valid location`);
 		if (!can_adventure(loc))
 			return liba_peridot_error(`{loc} not available for adventure`);
-		if (!(appearance_rates(loc) contains mon))
-			return liba_peridot_error(`{mon} is not found at {loc} according to mafia`);
+		//assume the player knows better than mafia
+		//if (!(get_location_monsters(loc) contains mon))
+		//	return liba_peridot_error(`{mon} is not found at {loc} according to mafia`);
 		if (liba_peridot_used(loc))
 			return liba_peridot_error(`already used at {loc}`);
 	}
