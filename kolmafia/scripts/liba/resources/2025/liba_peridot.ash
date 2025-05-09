@@ -96,7 +96,7 @@ boolean liba_peridot(buffer page,monster[int] monsterPriority,location loc,strin
 			return liba_peridot_error(`no {peridot} detected`);
 		if (equipped_amount(peridot) == 0)
 			return liba_peridot_error(`{peridot} not equipped`);
-		if (loc.id != -1)
+		if (loc.id == -1)
 			return liba_peridot_error(`{loc} is not a valid location`);
 		if (!can_adventure(loc))
 			return liba_peridot_error(`{loc} not available for adventure`);
