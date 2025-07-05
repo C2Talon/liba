@@ -47,7 +47,7 @@ boolean liba_genie(monster mon,string macro) {
 	}
 	if (!liba_genie_enter())
 		return false;
-	if (visit_url("choice.php?pwd&whichchoice=1267&option=1&wish=to fight a "+mon.manuel_name,true,true).contains_text("<a href='fight.php'>Fight!</a>"))
+	if (!visit_url("choice.php?pwd&whichchoice=1267&option=1&wish=to fight a "+mon.manuel_name,true,true).contains_text("<a href='fight.php'>Fight!</a>"))
 		return false;
 	visit_url("main.php",false,true);
 	run_combat(macro);
