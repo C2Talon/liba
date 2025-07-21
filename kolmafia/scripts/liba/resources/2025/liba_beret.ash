@@ -42,6 +42,12 @@ int liba_beret_left();
 //not for simulating--use bestBusks or allBusks for that
 int liba_beret(int times,float[modifier] modifierWeights,float[effect] effectWeights,boolean onlyNewEffects);
 
+//same as above, but uses record for input
+//mostly for adding gear for consideration that the player does not currently have, but can reliably get with retrieve_item()
+//if any gear is considered for a busk and not able to be retrieved, the function will stop before doing any actual busking
+//other player state things in sim will be overridden with current player state to prevent breakage
+int liba_beret(int times,liba_beret_sim sim);
+
 /* helper functions */
 
 //used to initialize some default values to be used for input of most things based on the state of the player
@@ -67,8 +73,6 @@ liba_beret_busk[int] liba_beret_bestBusks(int times,liba_beret_sim sim);
 //returns map of all available equipment for a particular slot
 item[int] liba_beret_allEquipment(slot slo);
 
-//returns the power of the equipped gear in given map based on current skills and effects; only counts hat, shirt, pants
-int liba_beret_getPower(item[slot] gear);
 //returns the power of the equipped gear in given map based on simulated skills and effects; only counts hat, shirt, pants
 int liba_beret_getPower(item[slot] gear,liba_beret_sim sim);
 
@@ -105,45 +109,64 @@ int liba_beret_left() {
 	return 5-liba_beret_used();
 }
 
-int liba_beret(int times,float[modifier] modWeights,float[effect] effWeights,boolean onlyNewEffects) {
+int liba_beret(int times,liba_beret_sim sim) {
 	if (!liba_beret_have()
 		|| liba_beret_left() <= 0)
 	{
 		return 0;
 	}
-	liba_beret_sim sim = liba_beret_simInit(modWeights,effWeights,onlyNewEffects);
-	int limit = liba_clamp(times,1,liba_beret_left());
 	int success;
-	liba_beret_busk[int] best = liba_beret_bestBusks(limit,sim);
+	int limit = liba_clamp(times,1,liba_beret_left());
 
-	//exit now if no best busks
+	//override sim to not break things
+	int simUsed = sim.used;
+	sim.used = liba_beret_used();
+	int[effect] simEffects = sim.effects;
+	sim.effects = my_effects();
+	boolean simTao = sim.tao;
+	sim.tao = have_skill($skill[tao of the terrapin]);
+
+	//find best busks and exit if nothing found
+	liba_beret_busk[int] best = liba_beret_bestBusks(limit,sim);
 	if (best.count() == 0) {
 		liba_beret_print(`no best busks found`);
 		return 0;
 	}
 
-	item[slot] restore;
-	boolean[slot] slots = $slots[hat,shirt,pants,familiar];
+	//store current equipment and familiar for restoration later
 	familiar fam = my_familiar();
-
-	foreach x in slots
+	item[slot] restore;
+	foreach x in $slots[hat,shirt,pants,familiar]
 		restore[x] = equipped_item(x);
 
+	//acquire all gear that were included for consideration for best busks and are now needed
+	foreach cast,busk in best foreach i,piece in busk.gear if (available_amount(piece) == 0 && !retrieve_item(piece)) {
+		liba_beret_print(`{piece} was included in one of the best busks but could not be acquired, so busking stopped before it started`);
+		return 0;
+	}
+
+	//do the busks, potentially burning empty ones to get to the next
 	foreach cast,busk in best {
 		int tries;
-		//did not find a best busk for every use, so burn the use to get to the next
-		while (cast > liba_beret_used() && ++tries < 5) {
-			liba_beret_print(`burning busk {cast+1} since all busk scores for all gear was zero`);
-			if (liba_beret_execute())
+		while (cast >= liba_beret_used() && tries++ < 5) {
+			if (cast == liba_beret_used())
+				liba_beret_print(`executing busk {cast+1}; weighted score {busk.score}; gear power {busk.power}`);
+			else
+				liba_beret_print(`burning busk {cast+1} since all busk scores for all gear considered was zero or less`);
+			if (liba_beret_execute(busk.gear))
 				success++;
 		}
-		liba_beret_print(`executing busk {cast+1}; weighted score {busk.score}; gear power {busk.power}`);
-		if (liba_beret_execute(busk.gear))
-			success++;
 	}
+
+	//restore equipment and familiar
 	use_familiar(fam);
 	foreach i,x in restore
 		equip(i,x);
+
+	//restore sim in case user wants to use it after
+	sim.used = simUsed;
+	sim.effects = simEffects;
+	sim.tao = simTao;
 
 	return success;
 }
@@ -335,6 +358,9 @@ boolean liba_beret_execute() {
 
 
 //liba_beret() overloads
+int liba_beret(int times,float[modifier] modWeights,float[effect] effWeights,boolean onlyNewEffects) {
+	return liba_beret(times,liba_beret_simInit(modWeights,effWeights,onlyNewEffects));
+}
 int liba_beret(int times,float[effect] effWeights,float[modifier] modWeights,boolean onlyNewEffects) {
 	return liba_beret(times,modWeights,effWeights,onlyNewEffects);
 }
