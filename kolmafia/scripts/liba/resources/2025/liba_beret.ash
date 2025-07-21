@@ -115,6 +115,13 @@ int liba_beret(int times,float[modifier] modWeights,float[effect] effWeights,boo
 	int limit = liba_clamp(times,1,liba_beret_left());
 	int success;
 	liba_beret_busk[int] best = liba_beret_bestBusks(limit,sim);
+
+	//exit now if no best busks
+	if (best.count() == 0) {
+		liba_beret_print(`no best busks found`);
+		return 0;
+	}
+
 	item[slot] restore;
 	boolean[slot] slots = $slots[hat,shirt,pants,familiar];
 	familiar fam = my_familiar();
