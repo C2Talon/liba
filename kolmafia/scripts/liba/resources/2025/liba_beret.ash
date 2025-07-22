@@ -172,66 +172,44 @@ int liba_beret(int times,liba_beret_sim sim) {
 }
 
 liba_beret_busk[int] liba_beret_bestBusks(int times,liba_beret_sim sim) {
-	liba_beret_busk[int,int] all = liba_beret_allBusks(times,sim);
 	liba_beret_busk[int] out;
 	float[int] tally;
-	int start = sim.used,count;
-	effect hammertime = $effect[hammertime];
-
-	int[effect] starting = sim.effects;
-
-	int[effect] exclude;
-	if (sim.onlyNewEffects) foreach i,x in sim.effects
-		exclude[i] = x;
-	sim.effects = exclude;
-
-	foreach cast in all {
-		if (start > cast)
-			continue;
-		start = count = cast;
-		break;
-	}
-
-	foreach cast,power,busk in all {
-		if (start > cast)
-			continue;
-
-		//exclude previous busk effects
-		if (count < cast) {
-			foreach eff in out[count].effects
-				exclude[eff] += 10;
-			count = cast;
-		}
-
-		//get score of this busk
-		float score;
-		if (count > start) {//potentially recalculate everything if not first busk
-			if (!(starting contains hammertime)
-				&& exclude contains hammertime)
-			{
-				busk.power = liba_beret_getPower(busk.gear,sim);
-				busk.effects = beret_busking_effects(busk.power,cast);
-				busk.score = liba_beret_getScore(busk.effects,sim);
-			}
-			else if (sim.onlyNewEffects)
-				busk.score = liba_beret_getScore(busk.effects,sim);
-			score = busk.score;
-		}
-		else
-			score = busk.score;
-
-		//compare and save if bigger
-		if (score > tally[cast]) {
-			out[cast] = busk;
-			busk.score = tally[cast] = score;
-		}
-	}
 	float total;
+	int limit = liba_clamp(times,1,5-sim.used);
+
+	if (sim.used >= 5 || sim.used < 0)
+		return out;
+
+	//store starting sim values that may change
+	int startUsed = sim.used;
+	int[effect] startEffects = sim.effects;
+	int[effect] simEffects;
+	if (sim.onlyNewEffects) foreach i,x in sim.effects
+		simEffects[i] = x;
+	sim.effects = simEffects;
+
+	repeat {
+		float score;
+		//add previous best busk effects to sim
+		if (sim.used > startUsed) foreach eff in out[sim.used-1].effects
+			sim.effects[eff] += 10;
+
+		//find best scoring busk among all busks for current simulated cast
+		liba_beret_busk[int,int] all = liba_beret_allBusks(1,sim);
+		foreach cast,power,busk in all if (busk.score > score) {
+			out[cast] = busk;
+			score = tally[cast] = busk.score;
+		}
+	} until (++sim.used >= startUsed+limit);
+
+	//total
 	foreach i,x in tally
 		total += x;
 	liba_beret_print(`best busks total score {total}`);
 
-	sim.effects = starting;
+	//restore sim and return
+	sim.effects = startEffects;
+	sim.used = startUsed;
 	return out;
 }
 
@@ -306,11 +284,11 @@ int liba_beret_getPower(item[slot] gear,liba_beret_sim sim) {
 float liba_beret_getScore(int[effect] buskEffects,liba_beret_sim sim) {
 	float score,value;
 	foreach eff in buskEffects {
-		if (sim.onlyNewEffects && sim.effects[eff] != 0)
-			continue;
 		if (eff == $effect[none])
 			continue;
 		buskEffects[eff] = 0;
+		if (sim.onlyNewEffects && sim.effects contains eff)
+			continue;
 		foreach mod,weight in sim.modifierWeights {
 			value = numeric_modifier(eff,mod);
 			if (value > 0.01 || value < 0.01) {
