@@ -265,7 +265,7 @@ item[int] liba_beret_allEquipment(slot slo) {
 int liba_beret_getPower(item[slot] gear,liba_beret_sim sim) {
 	int power;
 	int tao = sim.tao ? 1 : 0;
-	int hammer = sim.effects[$effect[hammertime] ] != 0 ? 2 : 0;
+	int hammer = (sim.effects contains $effect[hammertime]) ? 3 : 0;
 
 	foreach slo,ite in gear {
 		int multi = 1;
