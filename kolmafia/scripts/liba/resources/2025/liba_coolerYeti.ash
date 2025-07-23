@@ -86,7 +86,7 @@ boolean _liba_coolerYeti(int choice) {
 		return liba_coolerYeti_error(`could not enter choice adventure for {yeti}`);
 	if (!(available_choice_options() contains choice)) {
 		run_choice(1);
-		return liba_coolerYeti_error(`{attempt.thing} was not an available option; exited the choice adventure`);
+		return liba_coolerYeti_error(`{attempt.thing} was not an available option; likely need to drink something to clear the previous use; exited the choice adventure`);
 	}
 
 	run_choice(choice);
