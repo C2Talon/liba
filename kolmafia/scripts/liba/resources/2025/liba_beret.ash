@@ -277,7 +277,6 @@ int liba_beret_getPower(item[slot] gear,liba_beret_sim sim) {
 			continue;
 		power += ite.get_power() * multi;
 	}
-	power = floor(min(power,1100) + max(0,power-1100)**0.8);
 	return power;
 }
 
