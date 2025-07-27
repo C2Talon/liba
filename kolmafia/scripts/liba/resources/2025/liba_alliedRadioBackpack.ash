@@ -45,18 +45,22 @@ boolean liba_alliedRadioBackpack(string request) {
 		return false;
 	if (!liba_alliedRadioBackpack_enter())
 		return false;
-	if (!run_choice(1,`request={request.url_encode()}`).contains_text(">You acquire "))
-		return false;
+	run_choice(1,`request={request}`);//.buffer_to_file(`_allied_radio_request{liba_alliedRadioBackpack_used()+1}_"{request}".html`);
 	liba_incProperty("_liba_alliedRadioBackpack_used");
 	return true;
 }
 boolean liba_alliedRadioBackpack(item ite) {
-	return liba_alliedRadioBackpack(liba_alliedRadioBackpack_toRequest(ite));
+	string request = liba_alliedRadioBackpack_toRequest(ite);
+	if (request == '')
+		return false;
+	return liba_alliedRadioBackpack(request);
 }
 boolean liba_alliedRadioBackpack(effect eff) {
-	return liba_alliedRadioBackpack(liba_alliedRadioBackpack_toRequest(eff));
+	string request = liba_alliedRadioBackpack_toRequest(eff);
+	if (request == '')
+		return false;
+	return liba_alliedRadioBackpack(request);
 }
-
 int liba_alliedRadioBackpack_used() {
 	return get_property("_liba_alliedRadioBackpack_used").to_int();
 }
@@ -67,14 +71,16 @@ int liba_alliedRadioBackpack_left() {
 
 string liba_alliedRadioBackpack_toRequest(item ite) {
 	return string[item]{
+		$item[chroner]:			"salary",
+		//$item[handheld allied radio]:	"radio",
 		$item[skeleton war fuel can]:	"fuel",
 		$item[skeleton war grenade]:	"ordanance",
 		$item[skeleton wars rations]:	"rations",
-		$item[chroner]:			"salary",
 	}[ite];
 }
 string liba_alliedRadioBackpack_toRequest(effect eff) {
 	return string[effect]{
+		//$effect[ellipsoidtine]:		"Ellipsoidtine",
 		$effect[materiel intel]:	"materiel intel",
 	}[eff];
 }
