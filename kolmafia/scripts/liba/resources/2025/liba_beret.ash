@@ -140,7 +140,7 @@ int liba_beret(int times,liba_beret_sim sim) {
 		restore[x] = equipped_item(x);
 
 	//acquire all gear that were included for consideration for best busks and are now needed
-	foreach cast,busk in best foreach i,piece in busk.gear if (available_amount(piece) == 0 && !retrieve_item(piece)) {
+	foreach cast,busk in best foreach i,piece in busk.gear if (available_amount(piece) == 0 && piece != $item[none] && !retrieve_item(piece)) {
 		liba_beret_print(`{piece} was included in one of the best busks but could not be acquired, so busking stopped before it started`);
 		return 0;
 	}
