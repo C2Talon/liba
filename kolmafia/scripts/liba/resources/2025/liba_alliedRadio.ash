@@ -40,6 +40,8 @@ boolean liba_alliedRadio(string request) {
 		return false;
 	if (!liba_alliedRadio_isValid(request))
 		return false;
+	if (request == "materiel intel" && get_property("_alliedRadioMaterielIntel").to_boolean())
+		return false;
 	return allied_radio(request);
 }
 boolean liba_alliedRadio(item ite) {
