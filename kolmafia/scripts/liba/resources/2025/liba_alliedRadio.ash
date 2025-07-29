@@ -19,6 +19,9 @@ int liba_alliedRadio_used();
 //otherwise returns number of uses backpack has left
 int liba_alliedRadio_left();
 
+//returns whether materiel intel has been previously used today or not
+boolean liba_alliedRadio_usedMaterielIntel();
+
 /* helper functions */
 
 //returns the request string for given thing
@@ -36,11 +39,11 @@ boolean liba_alliedRadio_have() {
 }
 
 boolean liba_alliedRadio(string request) {
-	if (!liba_alliedRadio_have())
+	if (liba_alliedRadio_left() <= 0 && item_amount($item[handheld allied radio]) == 0)
 		return false;
 	if (!liba_alliedRadio_isValid(request))
 		return false;
-	if (request == "materiel intel" && get_property("_alliedRadioMaterielIntel").to_boolean())
+	if (request == "materiel intel" && liba_alliedRadio_usedMaterielIntel())
 		return false;
 	return allied_radio(request);
 }
@@ -69,6 +72,10 @@ int liba_alliedRadio_left() {
 	if (available_amount($item[allied radio backpack]) == 0)
 		return 0;
 	return 3-liba_alliedRadio_used();
+}
+
+boolean liba_alliedRadio_usedMaterielIntel() {
+	return get_property("_alliedRadioMaterielIntel").to_boolean();
 }
 
 string liba_alliedRadio_toRequest(item ite) {
