@@ -196,7 +196,7 @@ liba_beret_busk[int] liba_beret_bestBusks(int times,liba_beret_sim sim) {
 
 		//find best scoring busk among all busks for current simulated cast
 		liba_beret_busk[int,int] all = liba_beret_allBusks(1,sim);
-		foreach cast,power,busk in all if (busk.score > score) {
+		foreach cast,power,busk in all if (busk.score >= score) {
 			out[cast] = busk;
 			score = tally[cast] = busk.score;
 		}
