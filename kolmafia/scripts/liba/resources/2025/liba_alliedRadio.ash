@@ -91,6 +91,7 @@ string liba_alliedRadio_toRequest(effect eff) {
 	return string[effect]{
 		$effect[ellipsoidtined]:	"ellipsoidtine",
 		$effect[materiel intel]:	"materiel intel",
+		$effect[wildsun boon]:		"wildsun boon",
 	}[eff];
 }
 
@@ -104,6 +105,7 @@ boolean liba_alliedRadio_isValid(string s) {
 		rations,
 		salary,
 		sniper support,
+		wildsun boon,
 	][s];
 }
 
