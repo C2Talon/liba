@@ -22,6 +22,9 @@ int liba_alliedRadio_left();
 //returns whether materiel intel has been previously used today or not
 boolean liba_alliedRadio_usedMaterielIntel();
 
+//returns whether wildsun boon has been previously used today or not
+boolean liba_alliedRadio_usedWildsunBoon();
+
 /* helper functions */
 
 //returns the request string for given thing
@@ -44,6 +47,8 @@ boolean liba_alliedRadio(string request) {
 	if (!liba_alliedRadio_isValid(request))
 		return false;
 	if (request == "materiel intel" && liba_alliedRadio_usedMaterielIntel())
+		return false;
+	if (request == "wildsun boon" && liba_alliedRadio_usedWildsunBoon())
 		return false;
 	return allied_radio(request);
 }
@@ -76,6 +81,10 @@ int liba_alliedRadio_left() {
 
 boolean liba_alliedRadio_usedMaterielIntel() {
 	return get_property("_alliedRadioMaterielIntel").to_boolean();
+}
+
+boolean liba_alliedRadio_usedWildsunBoon() {
+	return get_property("_alliedRadioWildsunBoon").to_boolean();
 }
 
 string liba_alliedRadio_toRequest(item ite) {
