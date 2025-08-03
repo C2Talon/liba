@@ -1,17 +1,11 @@
 //liba coolerYeti
 
 import <liba_inChoice.ash>
-import <liba_incProperty.ash>
 
 record liba_coolerYeti_data {
 	int cost;
 	string thing;
-	string property;
 };
-
-/* properties used to track things
-_liba_coolerYeti_usedAdventures = number of times yeti has been used to double adventures with next drink
-*/
 
 //returns whether have cooler yeti or not
 boolean liba_coolerYeti_have();
@@ -32,6 +26,12 @@ boolean liba_coolerYeti_getIngredients() return liba_coolerYeti(4);
 
 //uses yeti to try to get extra stat increase with next drink
 boolean liba_coolerYeti_getStat() return liba_coolerYeti(5);
+
+//returns whether yeti's double adventures from booze has been used today or not
+boolean liba_coolerYeti_usedAdventures() return get_property("_coolerYetiAdventures").to_boolean();
+
+//returns what cooler yeti's next drink will do; will be empty if yeti can be used
+string liba_coolerYeti_mode() return get_property("coolerYetiMode");
 
 /* helper functions */
 
@@ -73,12 +73,14 @@ boolean _liba_coolerYeti(int choice) {
 
 	if (!liba_coolerYeti_have())
 		return liba_coolerYeti_error(`no {yeti} detected`);
+	if (liba_coolerYeti_mode() != "")
+		return liba_coolerYeti_error(`already set to enhance next drink with "{liba_coolerYeti_mode()}"`);
 
 	liba_coolerYeti_data attempt = liba_coolerYeti_data(choice);
 
 	if (attempt.cost == 0)
 		return liba_coolerYeti_error(`{choice} is not a valid choice`);
-	if (choice == 2 && get_property(attempt.property).to_int() >= 1)
+	if (choice == 2 && liba_coolerYeti_usedAdventures())
 		return liba_coolerYeti_error(`{attempt.thing} can only be used once per day`);
 	if (yeti.experience < attempt.cost)
 		return liba_coolerYeti_error(`{yeti} needs {attempt.cost} experience to get {attempt.thing}`);
@@ -90,17 +92,14 @@ boolean _liba_coolerYeti(int choice) {
 	}
 
 	run_choice(choice);
-	if (attempt.property != '')
-		liba_incProperty(attempt.property);
 	return true;
 }
 
 liba_coolerYeti_data liba_coolerYeti_data(int choice) {
 	liba_coolerYeti_data out;
-	string base = "_liba_coolerYeti_used";
 	switch (choice) {
 		case 2:
-			out = new liba_coolerYeti_data(400,"double adventures",base+"Adventures");
+			out = new liba_coolerYeti_data(400,"double adventures");
 			break;
 		case 3:
 			out = new liba_coolerYeti_data(225,`{$effect[looking cool]} effect`);
