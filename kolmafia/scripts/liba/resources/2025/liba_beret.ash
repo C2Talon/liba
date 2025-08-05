@@ -34,12 +34,13 @@ int liba_beret_used();
 int liba_beret_left();
 
 //finds and gets optimal beret busks with given weights on modifiers among all available combinations of gear the player currently has
+//while most parameters can be omitted, must have one of modifierWeights or effectWeights to work
+//not for simulating--use bestBusks() or allBusks() for pure simulation
 //times: number of busks to do; defaults to 1 if omitted
-//modWeights: map of weights you want to give to modifiers in busk effects
-//effWeights: map of weights you want to give specific effects in busks
+//modifierWeights: map of weights you want to give to modifiers in busk effects; defaults to an empty map if omitted
+//effectWeights: map of weights you want to give specific effects in busks; defaults to an empty map if omitted
 //onlyNewEffects: will only consider new effects; defaults to true if omitted
 //returns number of times busk is cast with given parameters
-//not for simulating--use bestBusks or allBusks for that
 int liba_beret(int times,float[modifier] modifierWeights,float[effect] effectWeights,boolean onlyNewEffects);
 
 //same as above, but uses record for input
@@ -63,11 +64,12 @@ void liba_beret_print(string s);
 boolean liba_beret_execute(item[slot] gear);
 boolean liba_beret_execute();
 
-//returns map of all busks possible based on available gear
+//returns map of all busks possible based on modifier and/or effect weights with simulated gear and status
 //does not count potential effects from previous busks for onlyNewEffects or changes in hammertime status
 liba_beret_busk[int,int] liba_beret_allBusks(int times,liba_beret_sim sim);
 
-//returns map of best busks based on weights based on currently available gear
+//returns map of best busks based on modifier and/or effect weights with simulated gear and status
+//will account for effects from previoius busks when for onlyNewEffects or changes in hammertime status
 liba_beret_busk[int] liba_beret_bestBusks(int times,liba_beret_sim sim);
 
 //returns map of all available equipment for a particular slot
@@ -196,7 +198,7 @@ liba_beret_busk[int] liba_beret_bestBusks(int times,liba_beret_sim sim) {
 
 		//find best scoring busk among all busks for current simulated cast
 		liba_beret_busk[int,int] all = liba_beret_allBusks(1,sim);
-		foreach cast,power,busk in all if (busk.score >= score) {
+		foreach cast,power,busk in all if (busk.score + 0.000001 >= score) {
 			out[cast] = busk;
 			score = tally[cast] = busk.score;
 		}
@@ -219,8 +221,6 @@ liba_beret_busk[int,int] liba_beret_allBusks(int times,liba_beret_sim sim) {
 		return out;
 
 	int limit = liba_clamp(times,1,5-sim.used);
-	float topScore;
-	int topPower;
 	int start = sim.used;
 
 	foreach i,hat in sim.hats foreach j,shirt in sim.shirts foreach k,pant in sim.pants {
@@ -233,7 +233,7 @@ liba_beret_busk[int,int] liba_beret_allBusks(int times,liba_beret_sim sim) {
 		for num from start to start+limit-1 {
 			int[effect] effs = beret_busking_effects(power,num);
 			float score = liba_beret_getScore(effs,sim);
-			if (score > 0.01)
+			if (score > 0.000001)
 				out[num,power] = new liba_beret_busk(power,score,gear,effs);
 		}
 	}
@@ -290,7 +290,7 @@ float liba_beret_getScore(int[effect] buskEffects,liba_beret_sim sim) {
 			continue;
 		foreach mod,weight in sim.modifierWeights {
 			value = numeric_modifier(eff,mod);
-			if (value > 0.01 || value < 0.01) {
+			if (value > 0.000001 || value < 0.000001) {
 				score += weight * value;
 				buskEffects[eff] += weight * value;
 			}
