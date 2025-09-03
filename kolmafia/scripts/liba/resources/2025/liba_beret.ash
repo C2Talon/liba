@@ -8,7 +8,7 @@ record liba_beret_busk {
 	int power;		//total power of gear for busk
 	float score;		//total score of effects in busk
 	item[slot] gear;	//map of slots of gear used for busk
-	int[effect] effects;	//map of effects in busk
+	float[effect] effects;	//map of effects in busk
 };
 
 //record used for input of many functions to simplify a lot of things
@@ -79,7 +79,7 @@ item[int] liba_beret_allEquipment(slot slo);
 int liba_beret_getPower(item[slot] gear,liba_beret_sim sim);
 
 //returns the score of the given effects based on weight and optionally whether you already have the effect or not
-float liba_beret_getScore(int[effect] buskEffects,liba_beret_sim sim);
+float liba_beret_getScore(float[effect] buskEffects,liba_beret_sim sim);
 
 /*===========================
 	implementations
@@ -231,7 +231,9 @@ liba_beret_busk[int,int] liba_beret_allBusks(int times,liba_beret_sim sim) {
 		};
 		int power = liba_beret_getPower(gear,sim);
 		for num from start to start+limit-1 {
-			int[effect] effs = beret_busking_effects(power,num);
+			float[effect] effs;
+			foreach eff,val in beret_busking_effects(power,num)
+				effs[eff] = val;
 			float score = liba_beret_getScore(effs,sim);
 			if (score > 0.000001)
 				out[num,power] = new liba_beret_busk(power,score,gear,effs);
@@ -280,7 +282,7 @@ int liba_beret_getPower(item[slot] gear,liba_beret_sim sim) {
 	return power;
 }
 
-float liba_beret_getScore(int[effect] buskEffects,liba_beret_sim sim) {
+float liba_beret_getScore(float[effect] buskEffects,liba_beret_sim sim) {
 	float score,value;
 	foreach eff in buskEffects {
 		if (eff == $effect[none])
