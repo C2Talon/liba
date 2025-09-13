@@ -54,7 +54,7 @@ boolean liba_aprilShield(int duration,effect eff) {
 		$effect[tubes of universal meat]:$skill[manicotti meditation],
 	};
 	skill ski = legend[eff];
-	if (ski == $skill[none])
+	if (!have_skill(ski))
 		return false;
 	int turnsPerCast = ski == $skill[leash of linguini] ? 15 : ski.turns_per_cast();
 	int casts = duration / turnsPerCast + (duration % turnsPerCast == 0 ? 0 : 1);

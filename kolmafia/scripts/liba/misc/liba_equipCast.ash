@@ -29,6 +29,10 @@ boolean liba_equipCast(int times,item equipment,skill skil) {
 		print(`liba_equipCast: "{equipment}" is not something that can be equipped`,"red");
 		return false;
 	}
+	if (available_amount(equipment) == 0) {
+		print(`liba_equipCast: "{equipment}" not found`,"red");
+		return false;
+	}
 
 	//swap in item
 	if (!have_equipped(equipment)) {
