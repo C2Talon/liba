@@ -25,12 +25,12 @@ boolean liba_equipCast(int times,item equipment,skill skil) {
 	slot slo = equipment.to_slot();
 	boolean out;
 
-	if (slo == $slot[none]) {
-		print(`liba_equipCast: "{equipment}" is not something that can be equipped`,"red");
-		return false;
-	}
 	if (available_amount(equipment) == 0) {
 		print(`liba_equipCast: "{equipment}" not found`,"red");
+		return false;
+	}
+	if (slo == $slot[none]) {
+		print(`liba_equipCast: "{equipment}" is not something that can be equipped`,"red");
 		return false;
 	}
 
@@ -52,7 +52,19 @@ boolean liba_equipCast(int times,item equipment,skill skil) {
 		equip(slo,equipment);
 	}
 
-	out = use_skill(times,skil);
+	//repeatedly cast things that can only be cast one at a time
+	if ($items[
+		blood cubic zirconia,
+		] contains equipment)
+	{
+		int count = 0;
+		while (use_skill(1,skil) && ++count < times);
+		if (count > 0)
+			out = true;
+	}
+	//cast everything else as normal
+	else
+		out = use_skill(times,skil);
 
 	//reequip previous item
 	if (main != $item[none]) {
