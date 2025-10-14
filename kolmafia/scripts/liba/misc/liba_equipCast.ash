@@ -25,6 +25,8 @@ boolean liba_equipCast(int times,item equipment,skill skil) {
 	slot slo = equipment.to_slot();
 	boolean out;
 
+	if (times < 1)
+		return false;
 	if (available_amount(equipment) == 0) {
 		print(`liba_equipCast: "{equipment}" not found`,"red");
 		return false;
