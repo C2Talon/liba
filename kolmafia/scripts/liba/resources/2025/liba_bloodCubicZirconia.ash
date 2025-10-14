@@ -104,7 +104,7 @@ boolean liba_bloodCubicZirconia(int num,item ite,int keepStatAbove) {
 }
 int liba_bloodCubicZirconia_casts(skill ski) {
 	string pref = string[skill]{
-		$skill[bcz: blood bath]:"_bczDialitupCasts",
+		$skill[bcz: blood bath]:"_bczBloodBathCasts",
 		$skill[bcz: dial it up to 11]:"_bczDialitupCasts",
 		$skill[bcz: sweat equity]:"_bczSweatEquityCasts",
 		$skill[bcz: create blood thinner]:"_bczBloodThinnerCasts",
