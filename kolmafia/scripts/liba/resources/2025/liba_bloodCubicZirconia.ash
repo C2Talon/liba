@@ -40,6 +40,7 @@ boolean liba_bloodCubicZirconia(int num,item ite,int keepStatAbove);
 
 //returns number of times skill has been cast previously
 int liba_bloodCubicZirconia_casts(skill ski);
+int liba_bloodCubicZirconia_used(skill ski);
 
 //returns substat cost of a skill given previousCasts
 int liba_bloodCubicZirconia_cost(int previousCasts);
@@ -116,6 +117,9 @@ int liba_bloodCubicZirconia_casts(skill ski) {
 	}[ski];
 	return get_property(pref).to_int();
 }
+int liba_bloodCubicZirconia_used(skill ski) {
+	return liba_bloodCubicZirconia_casts(ski);
+}
 int liba_bloodCubicZirconia_cost(int previousCasts) {
 	int[int] map = {
 		0:11,
@@ -154,7 +158,7 @@ int liba_bloodCubicZirconia_limitToProtectStats(int max,skill ski,int keepStatAb
 	return out;
 }
 
-/* overrides */
+/* overloads */
 
 //effect
 boolean liba_bloodCubicZirconia(effect eff) {
