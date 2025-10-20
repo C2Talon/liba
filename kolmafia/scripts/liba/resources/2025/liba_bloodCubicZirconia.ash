@@ -126,7 +126,11 @@ int liba_bloodCubicZirconia_cost(int previousCasts) {
 		1:23,
 		2:37,
 	};
-	return map[previousCasts % 3] * 10 ** (previousCasts / 3);
+	if (previousCasts < 12)
+		return map[previousCasts % 3] * 10 ** (previousCasts / 3);
+	if (previousCasts == 12)
+		return 420000;
+	return map[(previousCasts - 1) % 3] * 10 ** ((previousCasts - 1) / 3 + 1);
 }
 int liba_bloodCubicZirconia_cost(skill ski) {
 	return ski.liba_bloodCubicZirconia_casts().liba_bloodCubicZirconia_cost();
