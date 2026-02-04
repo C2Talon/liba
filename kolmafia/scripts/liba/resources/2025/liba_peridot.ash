@@ -7,9 +7,13 @@
 
 import <liba_inChoice.ash>
 import <liba_inCombat.ash>
+import <liba_eternityCodpiece.ash>
 
 //returns true if have the peridot item
 boolean liba_peridot_have();
+
+//returns which item is needed to be equipped to use peridot functionality; e.g. eternity codpiece if peridot is in it
+item liba_peridot_item();
 
 //tries to fight a monster at a location with optional combat macro with the peridot of peril choice adventure
 //make sure to have the peridot of peril equipped first, as well as do any other pre-adventure preparation since mafia's automated ones will not trigger with this
@@ -81,7 +85,15 @@ void liba_peridot_print(string s);
 /* implementations */
 
 boolean liba_peridot_have() {
-	return available_amount($item[peridot of peril]) > 0;
+	return liba_eternityCodpiece_availableAmount($item[peridot of peril]) > 0;
+}
+item liba_peridot_item() {
+	item out,peridot = $item[peridot of peril];
+	if (available_amount(peridot) > 0)
+		out = peridot;
+	else if (liba_eternityCodpiece_equippedAmount(peridot) > 0)
+		out = $item[the eternity codpiece];
+	return out;
 }
 boolean liba_peridot(buffer page,monster[int] monsterPriority,location loc,string macro) {
 	buffer blank;
