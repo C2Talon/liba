@@ -19,8 +19,8 @@ int liba_eternityCodpiece_set(item[int] gems);
 int liba_eternityCodpiece_set(item[slot] gems);
 
 //equips single gem to first empty slot or first slot if full, but only if a copy of the gem isn't already in it
-//returns true if the gem is equipped
-boolean liba_eternityCodpiece_set(item gem);
+//returns 0 if the gem is not equipped, 1 elsewise
+int liba_eternityCodpiece_set(item gem);
 
 //inserts given gem into every slot
 //returns number of given gem the codpiece has after insertion
@@ -116,8 +116,8 @@ int liba_eternityCodpiece_set(item[slot] gems) {
 		out++;
 	return out;
 }
-boolean liba_eternityCodpiece_set(item gem) {
-	return liba_eternityCodpiece_set(item[int]{gem}) > 0;
+int liba_eternityCodpiece_set(item gem) {
+	return liba_eternityCodpiece_set(item[int]{gem});
 }
 int liba_eternityCodpiece_setAll(item gem) {
 	return liba_eternityCodpiece_set(item[int]{gem,gem,gem,gem,gem});
