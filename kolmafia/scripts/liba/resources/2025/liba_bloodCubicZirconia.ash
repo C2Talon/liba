@@ -5,6 +5,7 @@
 //will return false for everything if player does not have the BCZ
 
 import <liba_equipCast.ash>
+import <liba_eternityCodpiece.ash>
 
 //returns true if have the BCZ
 boolean liba_bloodCubicZirconia_have();
@@ -53,10 +54,14 @@ stat liba_bloodCubicZirconia_toStat(skill ski);
 //returns the lower of max or casts needed to keep the corresponding stat of skill at or above keepStatAbove
 int liba_bloodCubicZirconia_limitToProtectStats(int max,skill ski,int keepStatAbove);
 
+//returns which item is needed to use BCZ
+item liba_bloodCubicZirconia_item();
+
 /* implementations */
 
 boolean liba_bloodCubicZirconia_have() {
-	return available_amount($item[blood cubic zirconia]) > 0;
+	return available_amount($item[blood cubic zirconia]) > 0
+		|| liba_eternityCodpiece_equippedAmount($item[blood cubic zirconia]) > 0;
 }
 boolean liba_bloodCubicZirconia(int duration,effect eff,int keepStatAbove) {
 	if (!liba_bloodCubicZirconia_have())
@@ -71,7 +76,7 @@ boolean liba_bloodCubicZirconia(int duration,effect eff,int keepStatAbove) {
 	int turnsPerCast = ski.turns_per_cast();
 	int casts = duration / turnsPerCast + (duration % turnsPerCast == 0 ? 0 : 1);
 	int limit = liba_bloodCubicZirconia_limitToProtectStats(casts,ski,keepStatAbove);
-	return liba_equipCast(limit,ski,$item[blood cubic zirconia]);
+	return liba_equipCast(limit,ski,liba_bloodCubicZirconia_item());
 }
 boolean liba_bloodCubicZirconia(int casts,skill ski,int keepStatAbove) {
 	if (!liba_bloodCubicZirconia_have())
@@ -88,7 +93,7 @@ boolean liba_bloodCubicZirconia(int casts,skill ski,int keepStatAbove) {
 		return false;
 	}
 	int limit = liba_bloodCubicZirconia_limitToProtectStats(casts,ski,keepStatAbove);
-	return liba_equipCast(limit,ski,$item[blood cubic zirconia]);
+	return liba_equipCast(limit,ski,liba_bloodCubicZirconia_item());
 }
 boolean liba_bloodCubicZirconia(int num,item ite,int keepStatAbove) {
 	if (!liba_bloodCubicZirconia_have())
@@ -159,6 +164,15 @@ int liba_bloodCubicZirconia_limitToProtectStats(int max,skill ski,int keepStatAb
 		if (startSub - cost < threshold)
 			break;
 	}
+	return out;
+}
+
+item liba_bloodCubicZirconia_item() {
+	item out;
+	if (available_amount($item[blood cubic zirconia]) > 0)
+		out = $item[blood cubic zirconia];
+	else if (liba_eternityCodpiece_equippedAmount($item[blood cubic zirconia]) > 0)
+		out = $item[the eternity codpiece];
 	return out;
 }
 

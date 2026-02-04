@@ -30,4 +30,6 @@ This library has functions supporting the following things:
 	* [Leprecondo](https://wiki.kingdomofloathing.com/Leprecondo)
 	* [Peridot of Peril](https://wiki.kingdomofloathing.com/Peridot_of_Peril)
 	* [prismatic beret](https://wiki.kingdomofloathing.com/Prismatic_beret)
+* 2026
+	* [The Eternity Codpiece](https://wiki.kingdomofloathing.com/The_Eternity_Codpiece)
 

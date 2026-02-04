@@ -57,6 +57,7 @@ boolean liba_equipCast(int times,item equipment,skill skil) {
 	//repeatedly cast things that can only be cast one at a time
 	if ($items[
 		blood cubic zirconia,
+		the eternity codpiece,//TODO: if another gem is added the needs to be equipped to use skills outside combat, this might need to change
 		] contains equipment)
 	{
 		int count = 0;
