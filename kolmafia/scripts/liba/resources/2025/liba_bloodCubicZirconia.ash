@@ -10,6 +10,9 @@ import <liba_eternityCodpiece.ash>
 //returns true if have the BCZ
 boolean liba_bloodCubicZirconia_have();
 
+//returns which item acts as the BCZ; e.g. if eternity codpiece has it, this will return the codpiece
+item liba_bloodCubicZirconia_item();
+
 //get an effect with the BCZ
 //duration is how many turns of the effect you want to get with its use
 //keepStatAbove will limit the number of casts to keep the stat at or above its value
@@ -53,9 +56,6 @@ stat liba_bloodCubicZirconia_toStat(skill ski);
 
 //returns the lower of max or casts needed to keep the corresponding stat of skill at or above keepStatAbove
 int liba_bloodCubicZirconia_limitToProtectStats(int max,skill ski,int keepStatAbove);
-
-//returns which item is needed to use BCZ
-item liba_bloodCubicZirconia_item();
 
 /* implementations */
 
