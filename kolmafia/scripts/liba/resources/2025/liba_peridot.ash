@@ -12,7 +12,8 @@ import <liba_eternityCodpiece.ash>
 //returns true if have the peridot item
 boolean liba_peridot_have();
 
-//returns which item is needed to be equipped to use peridot functionality; e.g. eternity codpiece if peridot is in it
+//returns which item acts as the peridot; e.g. if eternity codpiece has it, this will return the codpiece
+//returns $item[none] if peridot not found
 item liba_peridot_item();
 
 //tries to fight a monster at a location with optional combat macro with the peridot of peril choice adventure

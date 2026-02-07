@@ -11,6 +11,7 @@ import <liba_eternityCodpiece.ash>
 boolean liba_bloodCubicZirconia_have();
 
 //returns which item acts as the BCZ; e.g. if eternity codpiece has it, this will return the codpiece
+//returns $item[none] if BCZ not found
 item liba_bloodCubicZirconia_item();
 
 //get an effect with the BCZ
