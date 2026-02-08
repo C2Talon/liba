@@ -32,4 +32,5 @@ This library has functions supporting the following things:
 	* [prismatic beret](https://wiki.kingdomofloathing.com/Prismatic_beret)
 * 2026
 	* [The Eternity Codpiece](https://wiki.kingdomofloathing.com/The_Eternity_Codpiece)
+	* [Heartstone](https://wiki.kingdomofloathing.com/Heartstone)
 
