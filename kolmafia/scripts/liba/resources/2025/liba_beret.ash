@@ -204,6 +204,10 @@ liba_beret_busk[int] liba_beret_bestBusks(int times,liba_beret_sim sim) {
 		}
 	} until (++sim.used >= startUsed+limit);
 
+	//remove empty busks
+	foreach i,x in out if (x.power == 0)
+		remove out[i];
+
 	//total
 	foreach i,x in tally
 		total += x;
