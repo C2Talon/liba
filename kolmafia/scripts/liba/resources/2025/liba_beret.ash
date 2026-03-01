@@ -33,13 +33,22 @@ int liba_beret_used();
 //returns number of beret busk uses remaining
 int liba_beret_left();
 
+//finds and gets optimal beret busks with given singular modifier or effect among all available combinations of gear the player currently has
+//not for simulating--use bestBusks() or allBusks() for pure simulation
+//times: number of busks to do; defaults to 1 if omitted
+//mod or eff: modifier or effect to busk for
+//onlyNewEffects: only consider effects the player doesn't have when scoring and choosing busks; defaults to true if omitted
+//returns number of times busk is cast with given parameters
+int liba_beret(int times,modifier mod,boolean onlyNewEffects);
+int liba_beret(int times,effect eff,boolean onlyNewEffects);
+
 //finds and gets optimal beret busks with given weights on modifiers among all available combinations of gear the player currently has
 //while most parameters can be omitted, must have one of modifierWeights or effectWeights to work
 //not for simulating--use bestBusks() or allBusks() for pure simulation
 //times: number of busks to do; defaults to 1 if omitted
 //modifierWeights: map of weights you want to give to modifiers in busk effects; defaults to an empty map if omitted
 //effectWeights: map of weights you want to give specific effects in busks; defaults to an empty map if omitted
-//onlyNewEffects: will only consider new effects; defaults to true if omitted
+//onlyNewEffects: only consider effects the player doesn't have when scoring and choosing busks; defaults to true if omitted
 //returns number of times busk is cast with given parameters
 int liba_beret(int times,float[modifier] modifierWeights,float[effect] effectWeights,boolean onlyNewEffects);
 
@@ -388,5 +397,30 @@ int liba_beret(float[modifier] modWeights) {
 }
 int liba_beret(float[effect] effWeights) {
 	return liba_beret(1,float[modifier]{},effWeights,true);
+}
+//singular modifier/effect
+int liba_beret(int times,modifier mod,boolean onlyNewEffects) {
+	return liba_beret(times,float[modifier]{mod:1},float[effect]{},onlyNewEffects);
+}
+int liba_beret(modifier mod,boolean onlyNewEffects) {
+	return liba_beret(1,float[modifier]{mod:1},float[effect]{},onlyNewEffects);
+}
+int liba_beret(int times,modifier mod) {
+	return liba_beret(times,float[modifier]{mod:1},float[effect]{},true);
+}
+int liba_beret(modifier mod) {
+	return liba_beret(1,float[modifier]{mod:1},float[effect]{},true);
+}
+int liba_beret(int times,effect eff,boolean onlyNewEffects) {
+	return liba_beret(times,float[modifier]{},float[effect]{eff:1},onlyNewEffects);
+}
+int liba_beret(effect eff,boolean onlyNewEffects) {
+	return liba_beret(1,float[modifier]{},float[effect]{eff:1},onlyNewEffects);
+}
+int liba_beret(int times,effect eff) {
+	return liba_beret(times,float[modifier]{},float[effect]{eff:1},true);
+}
+int liba_beret(effect eff) {
+	return liba_beret(1,float[modifier]{},float[effect]{eff:1},true);
 }
 
