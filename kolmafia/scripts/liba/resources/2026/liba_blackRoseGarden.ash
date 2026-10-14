@@ -55,11 +55,10 @@ boolean liba_blackRoseGarden(string macro,int fountain_choice) {
 		return _liba_blackRoseGarden_result("could not enter garden",false);
 	buffer page;
 	int fountain = 1639;
-	int fountains,count;
-	boolean shapeless = false;
+	int fountains,count,skipped;
 	int tries = 0,max = 5;
 	for (;tries < max;tries++) {
-		fountains = 0;
+		fountains = skipped = 0;
 		foreach i,x in available_choice_extras() {
 			if (x.decision == 2)
 				continue;
@@ -67,13 +66,15 @@ boolean liba_blackRoseGarden(string macro,int fountain_choice) {
 				fountains++;
 				continue;
 			}
-			else if (shapeless && x.label.starts_with("Fight"))
+			if (skipped > 0 && x.label.starts_with("Fight")) {
+				skipped++;
 				continue;
+			}
 			_liba_blackRoseGarden_print(x.label);
 			page = run_choice(1,x.extras_joined);
 			if (page.contains_text("You're in no shape for this fight right now.")) {
 				_liba_blackRoseGarden_print("could not enter fight; will not try to fight again");
-				shapeless = true;
+				skipped++;
 				continue;
 			}
 			if (liba_inChoice(fountain))
@@ -86,9 +87,17 @@ boolean liba_blackRoseGarden(string macro,int fountain_choice) {
 		count = available_choice_extras().count();
 		if (count == 1
 			|| (fountain_choice == 0 && count == fountains + 1)
-			|| shapeless)
+			|| skipped > 0)
 		{
-			return _liba_blackRoseGarden_result("done",true);
+			string message = "done";
+			if (fountains > 0)
+				message += "; fountains skipped";
+			if (skipped > 0) {
+				message += `; couldn't fight {skipped} monsters`;
+				if (my_inebriety() > inebriety_limit())
+					message += " (overdrunk)";
+			}
+			return _liba_blackRoseGarden_result(message,true);
 		}
 	}
 	return _liba_blackRoseGarden_result(`unable to finish after {tries} tries; still {count-1} things available`,false);
@@ -119,7 +128,7 @@ boolean liba_blackRoseGarden_fountain(int choice) {
 			run_choice(choice);
 		_liba_blackRoseGarden_enter();
 	}
-	return _liba_blackRoseGarden_result("done",true);
+	return _liba_blackRoseGarden_result("fountain done",true);
 }
 boolean liba_blackRoseGarden_fountain() return liba_blackRoseGarden_fountain(-1);
 
