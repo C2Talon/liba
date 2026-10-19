@@ -55,35 +55,41 @@ boolean liba_blackRoseGarden_have() {
 }
 
 boolean liba_blackRoseGarden(string macro,int fountain_choice) {
-	_liba_blackRoseGarden_restore();
 	if (!_liba_blackRoseGarden_enter())
 		return _liba_blackRoseGarden_result("could not enter garden",false);
 	buffer page;
 	int fountain = 1639;
-	int fountains,count,skipped;
+	item key = $item[black thorn key];
+	int fountains,count,monsters,chests;
 	int tries = 0,max = 5;
 	for (;tries < max;tries++) {
-		fountains = skipped = 0;
+		fountains = monsters = chests = 0;
 		foreach i,x in available_choice_extras() {
 			if (x.decision == 2)
 				continue;
-			if (fountain_choice == 0 && x.label.starts_with("Drink ")) {
-				fountains++;
-				continue;
-			}
 			if (x.label.starts_with("Fight ")) {
-				if (skipped > 0) {
-					skipped++;
+				if (monsters > 0) {
+					monsters++;
 					continue;
 				}
 				if (!_liba_blackRoseGarden_preAdv())
 					return _liba_blackRoseGarden_result("stuck outside garden after pre-adv script",false);
 			}
+			else if (x.label.starts_with("Drink ")) {
+				if (fountain_choice == 0) {
+					fountains++;
+					continue;
+				}
+			}
+			else if (x.label.starts_with("Open ") && item_amount(key) == 0) {
+				chests++;
+				continue;
+			}
 			_liba_blackRoseGarden_print(x.label);
 			page = run_choice(1,x.extras_joined);
 			if (page.contains_text("You're in no shape for this fight right now.")) {
 				_liba_blackRoseGarden_print("could not enter fight; will not try to fight again");
-				skipped++;
+				monsters++;
 				continue;
 			}
 			if (liba_inChoice(fountain))
@@ -95,16 +101,20 @@ boolean liba_blackRoseGarden(string macro,int fountain_choice) {
 			}
 			_liba_blackRoseGarden_enter();
 		}
+		if (item_amount(key) > 0 && chests > 0)
+			continue;
 		count = available_choice_extras().count();
-		if (count == 1
-			|| (fountain_choice == 0 && count == fountains + 1)
-			|| skipped > 0)
+		if (count - chests == 1
+			|| (fountain_choice == 0 && count - chests == fountains + 1)
+			|| monsters > 0)
 		{
 			string message = "done";
 			if (fountains > 0)
 				message += "; fountains skipped";
-			if (skipped > 0) {
-				message += `; couldn't fight {skipped} monsters`;
+			if (chests > 0)
+				message += `; skipped {chests} chests`;
+			if (monsters > 0) {
+				message += `; couldn't fight {monsters} monsters`;
 				if (my_inebriety() > inebriety_limit())
 					message += " (overdrunk)";
 			}
@@ -175,3 +185,4 @@ boolean _liba_blackRoseGarden_postAdv() {
 	"afterAdventureScript".get_property().cli_execute();
 	return _liba_blackRoseGarden_enter();
 }
+
