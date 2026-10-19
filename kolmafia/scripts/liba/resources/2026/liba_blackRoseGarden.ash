@@ -43,6 +43,11 @@ void _liba_blackRoseGarden_print(string s);
 //prints message;returns result
 boolean _liba_blackRoseGarden_result(string s,boolean result);
 
+//do pre- and post-adventure scripts
+//returns true if in garden when done
+boolean _liba_blackRoseGarden_preAdv();
+boolean _liba_blackRoseGarden_postAdv();
+
 /* implementations */
 
 boolean liba_blackRoseGarden_have() {
@@ -62,13 +67,17 @@ boolean liba_blackRoseGarden(string macro,int fountain_choice) {
 		foreach i,x in available_choice_extras() {
 			if (x.decision == 2)
 				continue;
-			if (fountain_choice == 0 && x.label.contains_text("blood fountain")) {
+			if (fountain_choice == 0 && x.label.starts_with("Drink ")) {
 				fountains++;
 				continue;
 			}
-			if (skipped > 0 && x.label.starts_with("Fight")) {
-				skipped++;
-				continue;
+			if (x.label.starts_with("Fight ")) {
+				if (skipped > 0) {
+					skipped++;
+					continue;
+				}
+				if (!_liba_blackRoseGarden_preAdv())
+					return _liba_blackRoseGarden_result("stuck outside garden after pre-adv script",false);
 			}
 			_liba_blackRoseGarden_print(x.label);
 			page = run_choice(1,x.extras_joined);
@@ -79,9 +88,11 @@ boolean liba_blackRoseGarden(string macro,int fountain_choice) {
 			}
 			if (liba_inChoice(fountain))
 				run_choice(fountain_choice);
-			else if (liba_inCombat(page))
+			else if (liba_inCombat(page)) {
 				run_combat(macro);
-			_liba_blackRoseGarden_restore();
+				if (!_liba_blackRoseGarden_postAdv())
+					return _liba_blackRoseGarden_result("stuck outside garden after post-adv script",false);
+			}
 			_liba_blackRoseGarden_enter();
 		}
 		count = available_choice_extras().count();
@@ -155,3 +166,12 @@ boolean _liba_blackRoseGarden_result(string s,boolean result) {
 	return result;
 }
 
+boolean _liba_blackRoseGarden_preAdv() {
+	"betweenBattlesScript".get_property().cli_execute();
+	_liba_blackRoseGarden_restore();
+	return _liba_blackRoseGarden_enter();
+}
+boolean _liba_blackRoseGarden_postAdv() {
+	"afterAdventureScript".get_property().cli_execute();
+	return _liba_blackRoseGarden_enter();
+}
